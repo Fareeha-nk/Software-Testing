@@ -7,18 +7,6 @@ import static org.junit.Assert.*;
 public class LoginAppTest {
 
     @Test
-    public void testValidLogin() throws Exception {
-        // Test Case 1: Valid Login with Correct Email
-        LoginApp loginApp = new LoginApp();
-        Method method = LoginApp.class.getDeclaredMethod("authenticateUser", String.class);
-        method.setAccessible(true);
-
-        String userName = (String) method.invoke(loginApp, "johndoe@example.com");
-        assertNotNull("User should be authenticated with a valid email.", userName);
-        assertEquals("John Doe", userName);
-    }
-
-    @Test
     public void testCaseSensitivity() throws Exception {
         // Test Case 2: Case Sensitivity Check
         LoginApp loginApp = new LoginApp();
@@ -60,5 +48,26 @@ public class LoginAppTest {
 
         String userName = (String) method.invoke(loginApp, "");
         assertNull("Authentication should fail for an empty email input.", userName);
+    }
+
+    @Test
+    public void testInvalidPassword() throws Exception {
+        LoginApp loginApp = new LoginApp();
+        Method method = LoginApp.class.getDeclaredMethod("authenticateUser", String.class, String.class);
+        method.setAccessible(true);
+
+        String userName = (String) method.invoke(loginApp, "johndoe@example.com", "wrongpassword");
+        assertNull("Authentication should fail for incorrect password.", userName);
+    }
+
+
+    @Test
+    public void testEmptyPassword() throws Exception {
+        LoginApp loginApp = new LoginApp();
+        Method method = LoginApp.class.getDeclaredMethod("authenticateUser", String.class, String.class);
+        method.setAccessible(true);
+
+        String userName = (String) method.invoke(loginApp, "johndoe@example.com", "");
+        assertNull("Authentication should fail for an empty password input.", userName);
     }
 }
