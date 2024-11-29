@@ -14,6 +14,8 @@ public class LoginApp extends JFrame {
     private static final String DB_USER = "root";
     private static final String DB_PASSWORD = "12345678";
 
+    //This is a software testing assignment
+
     public LoginApp() {
         setTitle("Login Screen");
         setSize(350, 200);
