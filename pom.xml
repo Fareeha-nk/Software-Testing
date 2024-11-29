@@ -27,7 +27,7 @@
     <!-- Build configuration (optional, for configuring plugins) -->
  <build>
     <sourceDirectory>src</sourceDirectory>
-    <testSourceDirectory>Test</testSourceDirectory>
+    <testSourceDirectory>TestCases</testSourceDirectory>
     <plugins>
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
