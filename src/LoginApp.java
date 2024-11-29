@@ -41,31 +41,27 @@ public class LoginApp extends JFrame {
         add(panel);
     }
 
-    //this is a software testing assignment
-
     private class LoginAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             String email = emailField.getText();
-            String password = new String(passwordField.getPassword()); // Retrieve password entered by user
+            String password = new String(passwordField.getPassword()); // Password is ignored for validation
 
-            String userName = authenticateUser(email, password); // Pass both email and password for validation
+            String userName = authenticateUser(email);
             if (userName != null) {
                 JOptionPane.showMessageDialog(null, "Welcome, " + userName + "!", "Login Successful", JOptionPane.INFORMATION_MESSAGE);
             } else {
-                JOptionPane.showMessageDialog(null, "Invalid email or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "User not found.", "Login Failed", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
 
-    private String authenticateUser(String email, String password) {
+    private String authenticateUser(String email) {
         String userName = null;
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
-            // Update SQL query to include password check
-            String query = "SELECT name FROM User WHERE Email = ? AND Password = ?";
+            String query = "SELECT name FROM User WHERE Email = ?";
             PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setString(1, email);    // Set the email parameter
-            stmt.setString(2, password); // Set the password parameter
+            stmt.setString(1, email);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
