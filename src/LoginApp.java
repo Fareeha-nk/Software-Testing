@@ -1,99 +1,84 @@
-import org.junit.Test;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
-import java.lang.reflect.Method;
+public class LoginApp extends JFrame {
+    private JTextField emailField;
+    private JPasswordField passwordField;
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/softwaretesting";
+    private static final String DB_USER = "root";
+    private static final String DB_PASSWORD = "12345678";
 
-import static org.junit.Assert.*;
+    public LoginApp() {
+        setTitle("Login Screen");
+        setSize(350, 200);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
 
-public class LoginAppTest {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(3, 2, 10, 10));
 
+        // Email Label and Text Field
+        panel.add(new JLabel("Email:"));
+        emailField = new JTextField();
+        panel.add(emailField);
 
-    @Test
-    public void testValidLogin() throws Exception {
-        LoginApp loginApp = new LoginApp();
-        // Reflectively invoke authenticateUser with both email and password
-        Method method = LoginApp.class.getDeclaredMethod("authenticateUser", String.class, String.class);
-        method.setAccessible(true);
+        // Password Label and Password Field
+        panel.add(new JLabel("Password:"));
+        passwordField = new JPasswordField();
+        panel.add(passwordField);
 
-        String userName = (String) method.invoke(loginApp, "johndoe@example.com", "password123");
-        assertNotNull("User should be authenticated with a valid email and password.", userName);
-        assertEquals("John Doe", userName);
+        // Login Button
+        JButton loginButton = new JButton("Login");
+        loginButton.addActionListener(new LoginAction());
+        panel.add(loginButton);
+
+        add(panel);
     }
 
+    private class LoginAction implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String email = emailField.getText();
+            String password = new String(passwordField.getPassword()); // Password is ignored for validation
 
-    @Test
-    public void testInvalidEmail() throws Exception {
-        LoginApp loginApp = new LoginApp();
-        Method method = LoginApp.class.getDeclaredMethod("authenticateUser", String.class, String.class);
-        method.setAccessible(true);
-
-        String userName = (String) method.invoke(loginApp, "unknown@example.com", "password123");
-        assertNull("Authentication should fail for an email that does not exist.", userName);
+            String userName = authenticateUser(email);
+            if (userName != null) {
+                JOptionPane.showMessageDialog(null, "Welcome, " + userName + "!", "Login Successful", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(null, "User not found.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
+    private String authenticateUser(String email) {
+        String userName = null;
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+            String query = "SELECT name FROM User WHERE Email = ?";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
 
-    @Test
-    public void testEmptyEmail() throws Exception {
-        LoginApp loginApp = new LoginApp();
-        Method method = LoginApp.class.getDeclaredMethod("authenticateUser", String.class, String.class);
-        method.setAccessible(true);
-
-        String userName = (String) method.invoke(loginApp, "", "password123");
-        assertNull("Authentication should fail for an empty email input.", userName);
+            if (rs.next()) {
+                userName = rs.getString("Name");
+            }
+            rs.close();
+            stmt.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return userName;
     }
 
-
-    @Test
-    public void testSQLInjectionAttempt() throws Exception {
-        LoginApp loginApp = new LoginApp();
-        Method method = LoginApp.class.getDeclaredMethod("authenticateUser", String.class, String.class);
-        method.setAccessible(true);
-
-        String userName = (String) method.invoke(loginApp, "johndoe@example.com' OR '1'='1", "password123");
-        assertNull("Authentication should fail for an SQL injection attempt.", userName);
-    }
-
-
-    @Test
-    public void testNullEmail() throws Exception {
-        LoginApp loginApp = new LoginApp();
-        Method method = LoginApp.class.getDeclaredMethod("authenticateUser", String.class, String.class);
-        method.setAccessible(true);
-
-        String userName = (String) method.invoke(loginApp, null, "password123");
-        assertNull("Authentication should fail for a null email input.", userName);
-    }
-
-
-
-
-    @Test
-    public void testWhitespaceEmail() throws Exception {
-        LoginApp loginApp = new LoginApp();
-        Method method = LoginApp.class.getDeclaredMethod("authenticateUser", String.class, String.class);
-        method.setAccessible(true);
-
-        String userName = (String) method.invoke(loginApp, " johndoe@example.com ", "password123");
-        assertNull("Authentication should fail for emails with leading or trailing whitespace.", userName);
-    }
-
-    @Test
-    public void testInvalidPassword() throws Exception {
-        LoginApp loginApp = new LoginApp();
-        Method method = LoginApp.class.getDeclaredMethod("authenticateUser", String.class, String.class);
-        method.setAccessible(true);
-
-        String userName = (String) method.invoke(loginApp, "johndoe@example.com", "wrongpassword");
-        assertNull("Authentication should fail for incorrect password.", userName);
-    }
-
-
-    @Test
-    public void testEmptyPassword() throws Exception {
-        LoginApp loginApp = new LoginApp();
-        Method method = LoginApp.class.getDeclaredMethod("authenticateUser", String.class, String.class);
-        method.setAccessible(true);
-
-        String userName = (String) method.invoke(loginApp, "johndoe@example.com", "");
-        assertNull("Authentication should fail for an empty password input.", userName);
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            LoginApp loginApp = new LoginApp();
+            loginApp.setVisible(true);
+        });
     }
 }
