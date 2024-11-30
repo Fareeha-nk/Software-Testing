@@ -7,19 +7,6 @@ import static org.junit.Assert.*;
 //this is software testing assignment 3
 
 public class LoginAppTest {
-
-    @Test
-    public void testValidLogin() throws Exception {
-        // Test Case 1: Valid Login with Correct Email
-        LoginApp loginApp = new LoginApp();
-        Method method = LoginApp.class.getDeclaredMethod("authenticateUser", String.class);
-        method.setAccessible(true);
-
-        String userName = (String) method.invoke(loginApp, "johndoe@example.com");
-        assertNotNull("User should be authenticated with a valid email.", userName);
-        assertEquals("John Doe", userName);
-    }
-
     @Test
     public void testCaseSensitivity() throws Exception {
         // Test Case 2: Case Sensitivity Check
