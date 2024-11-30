@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 import static org.junit.Assert.*;
 
 //this is software testing assignment 3
-//assignment is hectic 
+//assignment is hectic :3
 
 public class LoginAppTest {
     @Test
